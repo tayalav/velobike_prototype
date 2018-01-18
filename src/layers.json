@@ -1,0 +1,94 @@
+{
+  "layers": [
+    { "id": "streets_volumes",
+      "name": "volumes_crop",
+      "hasSlider": true,
+      "filterField": "hr",
+      "inMenu": true,
+      "source": { "type": "geojson", "data": "./data/streets_volumes.geojson"},
+      "style": {
+        "id": "streets_volumes",
+        "type": "fill-extrusion",
+        "source": "streets_volumes",
+        "filter": ["==", "hr", 0],
+        "paint": {
+          "fill-extrusion-color":{
+            "property": "volume",
+            "type": "interval",
+            "stops": [
+              [0,"#332D7F"],
+              [500,"#0099E0"],
+              [1000,"#E5E545"],
+              [1500,"#E56778"],
+              [2000,"#EB3450"]
+             ]
+          },
+          "fill-extrusion-opacity": 0.7,
+          "fill-extrusion-height": ["*", ["get", "volume"],1]
+        }
+      }
+    },
+    { "id": "streets_intersections",
+      "name": "streets_intersections",
+      "hasSlider": true,
+      "filterField": "hr",
+      "inMenu": true,
+      "source": { "type": "geojson", "data": "./data/intersections_volumes_simplified.geojson"},
+      "style": {
+        "id": "streets_intersections",
+        "type": "fill-extrusion",
+        "source": "streets_intersections",
+        "filter": ["==", "hr", 0],
+        "paint": {
+          "fill-extrusion-color":{
+            "property": "passenger_count",
+            "type": "interval",
+            "stops": [
+              [0,"#0826B5"],
+              [100,"#2EFF78"],
+              [300,"#E7E742"],
+              [500,"#FF8124"],
+              [800,"#FF1010"]
+             ]
+          },
+          "fill-extrusion-opacity": 0.7,
+          "fill-extrusion-height": {
+            "property": "passenger_count",
+            "type": "exponential",
+            "stops": [
+              [0,0],
+              [1000,2000]
+             ]
+          }
+        }
+      }
+    },
+    { "id": "isochrones",
+      "name": "isochrones",
+      "hasSlider": true,
+      "filterField": "hr",
+      "inMenu": true,
+      "source": { "type": "geojson", "data": "./data/isochrones.geojson"},
+      "style": {
+        "id": "isochrones",
+        "type": "line",
+        "source": "isochrones",
+        "paint": {
+          "line-color":{
+            "property": "hr",
+            "type": "exponential",
+            "stops": [
+              [0,"#0230E3"],
+              [6,"#FFF324"],
+              [12,"#04FF18"],
+              [18,"#FFF324"],
+              [23,"#0021a3"]
+             ]
+          },
+          "line-opacity": 0.7,
+          "line-width": 1.4
+        }
+      }
+    }
+  ]
+}

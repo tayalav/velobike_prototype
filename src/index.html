@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+<style>
+    #menu {
+        position: absolute;
+        background: rgba(255,255,255,0.7);
+        padding: 5px;
+        border-radius: 3px;
+        font: 15px 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+    .legend {
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 3px;
+    bottom: 10px;
+    font: 12px/20px 'Helvetica Neue', Helvetica, sans-serif;
+    padding: 5px;
+    position: absolute;
+    right: 10px;
+    left: 50%;
+    transform: translatex(-50%);
+    width: 210px;
+}
+.legend > h4 {
+  margin: 5px;
+}
+.labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.labels div {
+  display: flex;
+  justify-content: center;
+}
+.panelzoom {
+  background-color: rgba(255,255,255,0.7);
+  border-radius: 3px;
+  position: absolute;
+  z-index: 1;
+  padding: 5px;
+  margin-top: 0;
+  top:35px;
+  left: 3px;
+  font: 11px 'Helvetica Neue', Helvetica, sans-serif;
+  box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+  -moz-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+  -webkit-box-shadow: 0px 3px 3px rgba(0,0,0,0.2);
+}
+
+.panelzoom > p {
+  margin: 0;
+}
+
+
+</style>
+
+<div id='map'></div>
+<div id='menu'>
+    <input id='Lightmap' type='radio' name='rtoggle' value='cjcg6vzz93pez2sobx2br0obs'>
+    <label for='Light'>Lightmap</label>
+    <input id='Basemap' type='radio' name='rtoggle' value='cj77fupj169482so4ody7a8w3' checked='checked'>
+    <label for='Basemap'>Basemap</label>
+</div>
+<div id='state-legend' class='legend'>
+    <h4>Кол-во велосипедов на станции:</h4>
+    <div class="labels">
+      <div><img src="./velo-green.svg" />Много</div>
+      <div><img src="./velo-yellow.svg" />Пока есть</div>
+      <div><img src="./velo-red.svg" /></span>Мало</div>
+    </div>
+</div>
+<div id='panelzoom' class='panelzoom'></div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibW9zY293Y2l0eW1hcCIsImEiOiJjajc3ZnQ1aGUxem41MzNudXU3MnBnZDA2In0.akDBtVzE-R3FgVs64ObGLg';
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/moscowcitymap/cjcg6vzz93pez2sobx2br0obs', //stylesheet location
+    center: [37.601167,55.725875], // starting position
+    zoom: 10,
+    minZoom: 9 // starting zoom
+});
+
+map.on('load', function () {
+  var x = map.getZoom();
+  document.getElementById('panelzoom').innerHTML = '<p>zoom '+(Number(x).toFixed(1)) + '</p>';
+  map.on('zoom', function () {
+    var x = map.getZoom();
+    document.getElementById('panelzoom').innerHTML = '<p>zoom '+(Number(x).toFixed(1)) + '</p>';
+  });
+});
+
+var source = {"type": "FeatureCollection", "features": []};
+
+function showData() {
+  const parkingsUrl = '//velobike-labs.urbica.co/velobike-api/ajax/parkings/?_=1499789533139';
+  fetch(parkingsUrl)
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      data.Items.forEach(item=>{
+        item['load'] = item.FreePlaces/item.TotalPlaces;
+        source.features.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [item.Position.Lon,item.Position.Lat]
+          },
+          properties: item
+        })
+      });
+      addLayers();
+  });
+}
+
+let layersAlreadyAdded = false;
+map.on('styledata', function() {
+  if (layersAlreadyAdded) return;
+  showData();
+  layersAlreadyAdded = true;
+});
+
+var layerList = document.getElementById('menu');
+var inputs = layerList.getElementsByTagName('input');
+
+function switchLayer(layer) {
+  var layerId = layer.target.value;
+  layersAlreadyAdded = false;
+  map.setStyle('mapbox://styles/moscowcitymap/' + layerId);
+}
+
+for (var i = 0; i < inputs.length; i++) {
+    inputs[i].onclick = switchLayer;
+}
+
+function addLayers() {
+  map.addSource("points", {type: "geojson", data: source });
+
+
+  map.addLayer({
+    id: "points_stroke",
+    source: "points",
+    type: "circle",
+    paint: {
+      "circle-color": "#ffffff",
+      "circle-radius":  {
+        stops: [
+          [8,3],
+          [9,4.5],
+          [10,0],
+        ]
+      }
+    }
+  });
+
+
+  map.addLayer({
+    id: "points",
+    source: "points",
+    type: "circle",
+    paint: {
+      "circle-color": {
+        property: "TotalPlaces",
+        type: "interval",
+        stops: [
+          [10,"#DE0021"],
+          [15,"#F7D200"],
+          [20,"#00B236"]
+        ]
+      },
+      "circle-radius": {
+        stops: [
+          [8,2],
+          [9,3.5],
+          [10,0],
+        ]
+      }
+    }
+  });
+
+  map.addLayer({
+    id: "points_icon",
+    source: "points",
+    type: "symbol",
+    layout: {
+      "icon-image":  {
+        property: "TotalPlaces",
+        type: "interval",
+        stops: [
+          [10,"velo-red"],
+          [15,"velo-yellow"],
+          [20,"velo-green"]
+        ]
+      },
+      "icon-size":  {
+        stops: [
+          [8,0],
+          [9,0],
+          [10,0.5],
+          [12,0.7],
+          [14,1],
+          [16,1.2],
+          [22,1.5]
+        ]
+      },
+      "icon-allow-overlap": true
+    }
+  });
+  map.addLayer({
+    id: "points_txt",
+    source: "points",
+    type: "symbol",
+    layout: {
+      "text-field": "{FreePlaces}/{TotalPlaces}",
+      "text-size": {
+        stops: [
+          [11,0],
+          [12,7],
+          [14,9],
+          [16,10],
+          [22,11]
+        ]
+      },
+      "text-offset": [0,1.6],
+      "text-allow-overlap": true
+    },
+    paint: {
+      "text-color": "#616466"
+    }
+  });
+};
+
+
+
+</script>
+
+</body>
+</html>
