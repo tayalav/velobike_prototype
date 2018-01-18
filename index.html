@@ -107,7 +107,7 @@ map.on('load', function () {
 var source = {"type": "FeatureCollection", "features": []};
 
 function showData() {
-  const parkingsUrl = '//velobike-labs.urbica.co/velobike-api/ajax/parkings/?_=1499789533139';
+  const parkingsUrl = 'https://velobike.ru/ajax/parkings/?_=1499789533139';
   fetch(parkingsUrl)
     .then(function(response) { return response.json(); })
     .then(function(data) {
