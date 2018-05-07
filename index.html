@@ -76,14 +76,14 @@
     <label for='Basemap'>Basemap</label>
 </div>
 <div id='state-legend' class='legend'>
-    <h4>Кол-во cвободных мест для велосипедов:</h4>
+    <h4>Свободные места для велобайка</h4>
     <div class="labels">
       <div><img src="./velo-green.svg" />Много</div>
       <div><img src="./velo-yellow.svg" />Пока есть</div>
       <div><img src="./velo-red.svg" /></span>Мало</div>
     </div>
 </div>
-<div id='panelzoom' class='panelzoom'></div>
+<!--<div id='panelzoom' class='panelzoom'></div>-->
 
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9zY293Y2l0eW1hcCIsImEiOiJjajc3ZnQ1aGUxem41MzNudXU3MnBnZDA2In0.akDBtVzE-R3FgVs64ObGLg';
@@ -95,6 +95,7 @@ var map = new mapboxgl.Map({
     minZoom: 9 // starting zoom
 });
 
+/*
 map.on('load', function () {
   var x = map.getZoom();
   document.getElementById('panelzoom').innerHTML = '<p>zoom '+(Number(x).toFixed(1)) + '</p>';
@@ -103,6 +104,7 @@ map.on('load', function () {
     document.getElementById('panelzoom').innerHTML = '<p>zoom '+(Number(x).toFixed(1)) + '</p>';
   });
 });
+*/
 
 var source = {"type": "FeatureCollection", "features": []};
 
