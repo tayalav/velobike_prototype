@@ -173,12 +173,12 @@ function addLayers() {
     type: "circle",
     paint: {
       "circle-color": {
-        property: "TotalPlaces",
+        property: "FreePlaces",
         type: "interval",
         stops: [
-          [10,"#DE0021"],
-          [15,"#F7D200"],
-          [20,"#00B236"]
+          [2,"#DE0021"],
+          [4,"#F7D200"],
+          [5,"#00B236"]
         ]
       },
       "circle-radius": {
@@ -197,12 +197,12 @@ function addLayers() {
     type: "symbol",
     layout: {
       "icon-image":  {
-        property: "TotalPlaces",
+        property: "FreePlaces",
         type: "interval",
         stops: [
-          [10,"velo-red"],
-          [15,"velo-yellow"],
-          [20,"velo-green"]
+          [2,"velo-red"],
+          [4,"velo-yellow"],
+          [5,"velo-green"]
         ]
       },
       "icon-size":  {
